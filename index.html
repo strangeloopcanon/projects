@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Project Timeline</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background-color: #333;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+        .container {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: calc(50% - 40px);
+        }
+        .container::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: white;
+            border: 2px solid #333;
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .left {
+            left: 0;
+        }
+        .right {
+            left: 50%;
+        }
+        .left::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            right: 30px;
+            border: medium solid #333;
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent #333;
+        }
+        .right::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            left: 30px;
+            border: medium solid #333;
+            border-width: 10px 10px 10px 0;
+            border-color: transparent #333 transparent transparent;
+        }
+        .right::after {
+            left: -10px;
+        }
+        .content {
+            padding: 20px;
+            background-color: white;
+            position: relative;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-top: 0;
+        }
+        @media screen and (max-width: 600px) {
+            .timeline::after {
+                left: 31px;
+            }
+            .container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            .container::before {
+                left: 60px;
+                border: medium solid #333;
+                border-width: 10px 10px 10px 0;
+                border-color: transparent #333 transparent transparent;
+            }
+            .left::after, .right::after {
+                left: 21px;
+            }
+            .right {
+                left: 0%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timeline" id="timeline">
+        <div class="container left" data-date="2023-06">
+            <div class="content">
+                <h2>Project Title 1</h2>
+                <p>June 2023</p>
+                <p>Brief description of the project goes here.</p>
+                <a href="https://github.com/yourusername/project1" target="_blank">GitHub Repository</a>
+            </div>
+        </div>
+        <div class="container right" data-date="2023-08">
+            <div class="content">
+                <h2>Project Title 2</h2>
+                <p>August 2023</p>
+                <p>Another brief project description.</p>
+                <a href="https://github.com/yourusername/project2" target="_blank">GitHub Repository</a>
+            </div>
+        </div>
+        <div class="container left" data-date="2023-10">
+            <div class="content">
+                <h2>Project Title 3</h2>
+                <p>October 2023</p>
+                <p>Yet another project description.</p>
+                <a href="https://github.com/yourusername/project3" target="_blank">GitHub Repository</a>
+            </div>
+        </div>
+        <!-- Add more projects as needed, alternating between "left" and "right" classes -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const timeline = document.getElementById('timeline');
+            const containers = Array.from(timeline.getElementsByClassName('container'));
+            containers.sort((a, b) => new Date(a.dataset.date) - new Date(b.dataset.date));
+            containers.forEach(container => timeline.appendChild(container));
+        });
+    </script>
+</body>
+</html>
