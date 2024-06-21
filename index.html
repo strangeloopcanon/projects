@@ -393,7 +393,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const timeline = document.getElementById('timeline');
             const containers = Array.from(timeline.getElementsByClassName('container'));
-            containers.sort((a, b) => new Date(a.dataset.date) - new Date(b.dataset.date));
+            containers.sort((a, b) => new Date(b.dataset.date) - new Date(a.dataset.date));
             containers.forEach(container => timeline.appendChild(container));
         });
     </script>
