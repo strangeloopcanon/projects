@@ -196,6 +196,138 @@
         .theme-toggle .icon {
             font-size: 16px;
         }
+        
+        /* Project category tags */
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        
+        .tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid;
+            transition: all 0.2s ease;
+        }
+        
+        .tag.ai {
+            background-color: var(--content-bg);
+            color: #8B5CF6;
+            border-color: #8B5CF6;
+        }
+        
+        .tag.eval {
+            background-color: var(--content-bg);
+            color: #10B981;
+            border-color: #10B981;
+        }
+        
+        .tag.tool {
+            background-color: var(--content-bg);
+            color: #F59E0B;
+            border-color: #F59E0B;
+        }
+        
+        .tag.research {
+            background-color: var(--content-bg);
+            color: #EF4444;
+            border-color: #EF4444;
+        }
+        
+        .tag.product {
+            background-color: var(--content-bg);
+            color: #3B82F6;
+            border-color: #3B82F6;
+        }
+        
+        .tag.experiment {
+            background-color: var(--content-bg);
+            color: #8B5A2B;
+            border-color: #8B5A2B;
+        }
+        
+        /* Enhanced mobile optimizations */
+        @media screen and (max-width: 600px) {
+            .timeline::after {
+                left: 31px;
+            }
+            .container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+                margin-bottom: 20px;
+            }
+            .container::before {
+                left: 60px;
+                border: medium solid var(--timeline-color);
+                border-width: 10px 10px 10px 0;
+                border-color: transparent var(--timeline-color) transparent transparent;
+            }
+            .left::after, .right::after {
+                left: 21px;
+            }
+            .right {
+                left: 0%;
+            }
+            .content {
+                padding: 16px;
+                margin: 0;
+                border-radius: 8px;
+            }
+            .header h1 {
+                font-size: 2em;
+                line-height: 1.2;
+            }
+            .header p {
+                font-size: 1em;
+            }
+            .theme-toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-top: 15px;
+                align-self: flex-end;
+            }
+            .project-tags {
+                margin-top: 10px;
+                gap: 4px;
+            }
+            .tag {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+            body {
+                padding: 15px;
+            }
+            .timeline {
+                margin: 20px auto;
+                padding: 10px 0;
+            }
+        }
+        
+        /* Touch-friendly interactions */
+        .content {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .content:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow), 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        @media (hover: none) {
+            .content:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+        }
     </style>
 </head>
 <body>
@@ -215,6 +347,10 @@
                 <p class="date-display"></p>
                 <p>Built an AI that doesn't just read the news—it predicts what's coming next. Automated ingestion, smart summaries, and threaded discussions because the future belongs to those who see it coming.</p>
                 <a href="https://github.com/strangeloopcanon/foresight-forge" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2025-07">
@@ -223,6 +359,10 @@
                 <p class="date-display"></p>
                 <p>Human research behavior is complex—so built Mneme to capture it. Transforms raw browsing data into GRPO-ready trajectories that teach AI agents to replicate how humans actually research, because the best AI learns from real human patterns.</p>
                 <a href="https://github.com/strangeloopcanon/mneme" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2025-07">
@@ -231,6 +371,10 @@
                 <p class="date-display"></p>
                 <p>Managing AI agents shouldn't require a PhD in prompt engineering. Built Bridge as Mission Control for AI fleets—a CEO-appropriate interface that makes orchestrating AI agents as simple as managing a team of humans.</p>
                 <a href="https://github.com/strangeloopcanon/Bridge" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2025-07">
@@ -239,6 +383,10 @@
                 <p class="date-display"></p>
                 <p>Google Docs are great for collaboration, but they're not Git-friendly. Built Branch to sync Google Docs into local Git repositories—because version control shouldn't be limited to code. Now you can diff, blame, and branch your documents like any other source code.</p>
                 <a href="https://github.com/strangeloopcanon/Branch" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag tool">Tool</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2025-06">
@@ -247,6 +395,10 @@
                 <p class="date-display"></p>
                 <p>Chat apps are everywhere, but what if they could pay for themselves? Built an AI chat platform that seamlessly integrates contextual advertising—because great conversations shouldn't cost a fortune to host.</p>
                 <a href="https://github.com/strangeloopcanon/freechat" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2025-06">
@@ -255,6 +407,10 @@
                 <p class="date-display"></p>
                 <p>Search is broken—we get links, not answers. Built an agentic search system on Claude that actually thinks about what you're asking and finds the real insights, not just keywords.</p>
                 <a href="https://github.com/strangeloopcanon/Agentic_search" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2025-01">
@@ -263,6 +419,10 @@
                 <p class="date-display"></p>
                 <p>AI ethics isn't just about rules—it's about understanding how models actually behave when faced with real moral dilemmas. EthicsBench puts LLMs through their paces to see if they can walk the ethical tightrope.</p>
                 <a href="https://github.com/strangeloopcanon/EthicsBench" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2025-05">
@@ -271,6 +431,10 @@
                 <p class="date-display"></p>
                 <p>Designed and built an enterprise ready platform, using a novel DSL for accurate natural language analytics.</p>
                 <a href="https://github.com/strangeloopcanon/PD-platform" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2025-05">
@@ -279,6 +443,10 @@
                 <p class="date-display"></p>
                 <p>AI writer product that learns from others' social feeds, and uses a GRPO model to teach a model how to write posts.</p>
                 <a href="https://github.com/rezendi/walter-fe/" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2025-04">
@@ -287,6 +455,10 @@
                 <p class="date-display"></p>
                 <p>Watching LLMs process one by one felt like a dial-up flashback. Built ParaLLM to let them all run wild in parallel—because real AI work needs warp speed.</p>
                 <a href="https://github.com/strangeloopcanon/ParaLLM" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2025-04">
@@ -295,6 +467,10 @@
                 <p class="date-display"></p>
                 <p>Life science data is hard to analyse, we need a way to query and analyse it. So I built Galen, an AI sidekick that deciphers your docs and DBs, turning data dumps into 'aha!' moments—because insights shouldn't be that hard to find.</p>
                 <a href="https://github.com/strangeloopcanon/galen" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2025-03">
@@ -303,6 +479,10 @@
                 <p class="date-display"></p>
                 <p>Curious if a tiny 0.5B LLM could bluff its way through poker with some RL coaching. Turns out, even small models can learn a mean poker face.</p>
                 <a href="https://gist.github.com/strangeloopcanon/6e4ce36fc3279961d70edd84cfcab1f9" target="_blank">Gist</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2025-02">
@@ -311,6 +491,10 @@
                 <p class="date-display"></p>
                 <p>LLM evaluation: To see how LLMs *really* stack up at playing poker, I built a casino where AIs (and you!) can go all-in. Because strategy is the ultimate LLM test.</p>
                 <a href="https://github.com/strangeloopcanon/llm-poker" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-12">
@@ -319,6 +503,10 @@
                 <p class="date-display"></p>
                 <p>Rankings are often shallow, just leaderboards lacking depth—so LLMRank lets models critically judge each other. Because when everyone's good, you need nuance to know who's great.</p>
                 <a href="https://github.com/strangeloopcanon/LLMRank" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2024-05">
@@ -327,6 +515,10 @@
                 <p class="date-display"></p>
                 <p>Cellular Automata are mesmerizingly complex, but predicting their next move is incredibly difficult. So I trained a transformer to crack it, then had it evolve even smarter versions of itself, to test how new model ensembles could be created.</p>
                 <a href="https://github.com/strangeloopcanon/CATransformer" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-05">
@@ -335,6 +527,10 @@
                 <p class="date-display"></p>
                 <p>LLM evaluation: Picking the right LLM for a job is often a guessing game. Built a rigorous bootcamp for models: custom evals, RAG, DB hookups, the works. Because choosing your AI shouldn't be a shot in the dark.</p>
                 <a href="https://github.com/strangeloopcanon/task_evals" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2024-05">
@@ -343,6 +539,10 @@
                 <p class="date-display"></p>
                 <p>LLM evaluation: LLM outputs can be slick, but how *good* are they, really? Created a linguistic detective kit to dissect their prose. Because style *and* substance matter.</p>
                 <a href="https://github.com/strangeloopcanon/llm-text-inspector" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-04">
@@ -351,6 +551,10 @@
                 <p class="date-display"></p>
                 <p>LLM evaluation: LLMs are great at essays, but can they *reason*? So I created an env to throw Wordle, Sudoku, and other logic puzzles at them with LOOP Evals. Because true smarts mean more than just smooth talk.</p>
                 <a href="https://github.com/strangeloopcanon/LOOP-Evals" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2024-04">
@@ -359,6 +563,10 @@
                 <p class="date-display"></p>
                 <p>Everyone wants AI to tell stories, but most attempts are... meh. Coaxed an AI to write surprisingly decent six-part tales with Twain. Because storytelling is an art, even for machines.</p>
                 <a href="https://github.com/strangeloopcanon/twain" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-04">
@@ -367,6 +575,10 @@
                 <p class="date-display"></p>
                 <p>LLMs often just steamroll ahead, even when they're wrong. Gave them a 'pause and rethink' button. ReflectGPT lets them catch their own blunders and try again—because real intelligence means admitting you messed up.</p>
                 <a href="https://github.com/strangeloopcanon/ReflectGPT" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-03">
@@ -375,6 +587,10 @@
                 <p class="date-display"></p>
                 <p>LLM evaluation: Advanced manufacturing needs AI, but generic evals are quite bad. Designed custom benchmarks to find the sharpest AI tools for the factory floor. Because precision matters, from code to an assembly line.</p>
                 <a href="https://github.com/strangeloopcanon/Fab-AI-Evals" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-02">
@@ -383,6 +599,10 @@
                 <p class="date-display"></p>
                 <p>The Jones Act is famously complex—so, I had a bit of fun turning it into a strategy game. Navigating bureaucracy has never been so (intentionally) frustratingly fun.</p>
                 <a href="https://github.com/strangeloopcanon/Shipping-Tycoon-Jones-Act" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2024-01">
@@ -391,6 +611,10 @@
                 <p class="date-display"></p>
                 <p>Conway's Game of Life is a classic. What happens when you give it a quantum spin? QCGOL explores that rabbit hole.</p>
                 <a href="https://github.com/strangeloopcanon/QCGOL" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-01">
@@ -399,6 +623,10 @@
                 <p class="date-display"></p>
                 <p>Investment analysis is tough. Sketched out 'Prof,' an AI mentor to train aspiring analysts. The core idea? Even complex finance can be taught with smart AI.</p>
                 <a href="https://github.com/strangeloopcanon/Prof" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2025-07">
@@ -407,6 +635,10 @@
                 <p class="date-display"></p>
                 <p>Drowning in documents but need a clear report? A good solution needs to be simple and easy to use. Therefore built Livy to read the mountain, find the gold, and draft the summary. Because your brainpower is too precious for CTRL+F.</p>
                 <a href="https://github.com/strangeloopcanon/Livy" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-01">
@@ -415,6 +647,10 @@
                 <p class="date-display"></p>
                 <p>The Pomodoro timer is great, but felt a bit... analog. Infused it with LLM smarts to create Fomodoro—a focus tool that watches your computer and makes sure you're staying on task, the way a good productivity tool should.</p>
                 <a href="https://github.com/strangeloopcanon/fomodoro" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2024-01">
@@ -423,6 +659,10 @@
                 <p class="date-display"></p>
                 <p>What if an LLM could teach itself to be better? Autotune_GPT is that feedback loop: AI improving AI.</p>
                 <a href="https://github.com/strangeloopcanon/Autotune_GPT" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2024-01">
@@ -431,6 +671,10 @@
                 <p class="date-display"></p>
                 <p>Computers got boring, so I made mine talk back. Turns out an AI voice that's sharp, helpful, and just a bit snarky made working a lot more fun.</p>
                 <a href="https://github.com/strangeloopcanon/audiochat" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag product">Product</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2024-01">
@@ -439,6 +683,10 @@
                 <p class="date-display"></p>
                 <p>The VC world is a maze. Built 'Mini VC' to simulate the hustle and find patterns in the chaos. Even a simulated investor needs a good thesis.</p>
                 <a href="https://github.com/strangeloopcanon/minivc" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2023-05">
@@ -447,6 +695,10 @@
                 <p class="date-display"></p>
                 <p>We need new form factors to use AI. Made a Chrome extension that brings GPT smarts to any webpage—highlight, click, understand.</p>
                 <a href="https://github.com/strangeloopcanon/gpt-chrome-extension" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag tool">Tool</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2023-05">
@@ -455,6 +707,10 @@
                 <p class="date-display"></p>
                 <p>Before 'agents' were all the rage, there was Loopy: an early experiment in getting LLMs to think, observe, and act.</p>
                 <a href="https://github.com/strangeloopcanon/loopy" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2023-04">
@@ -463,6 +719,10 @@
                 <p class="date-display"></p>
                 <p>Needed a way to automate Slack chores and actually *use* the data. Built a bot that not only messages but also neatly logs everything for analysis..</p>
                 <a href="https://github.com/strangeloopcanon/slackbot" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag tool">Tool</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2023-04">
@@ -471,6 +731,10 @@
                 <p class="date-display"></p>
                 <p>Jumping into a new Python codebase can be daunting. Repo Reader uses GPT to give you the lay of the land—like a friendly AI guide for unfamiliar code.</p>
                 <a href="https://github.com/strangeloopcanon/repo-reader" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag tool">Tool</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2023-04">
@@ -479,6 +743,10 @@
                 <p class="date-display"></p>
                 <p>How does information *really* flow and grow? Dove into network analysis to see how connections and shapes impact our collective brainpower.</p>
                 <a href="https://github.com/strangeloopcanon/Network-Analysis" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2023-03">
@@ -487,6 +755,10 @@
                 <p class="date-display"></p>
                 <p>Getting LLMs to play by the rules is a big deal (and a fun puzzle). A cheeky way to keep their creativity in check—maybe even accidentally solved alignment. Mostly kidding. Maybe.</p>
                 <a href="https://github.com/strangeloopcanon/alignment" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2023-03">
@@ -495,6 +767,10 @@
                 <p class="date-display"></p>
                 <p>Also before agents were du jour: What if code could write itself... and then actually run? Autocoder was my dive into that meta-dream. Because the ultimate dev tool builds itself.</p>
                 <a href="https://github.com/strangeloopcanon/autocoder" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2023-03">
@@ -503,6 +779,10 @@
                 <p class="date-display"></p>
                 <p>Growth and innovation are the engines of progress, but what *really* drives them? Dug into the data to find out. Because understanding the past is key to building a cooler future.</p>
                 <a href="https://github.com/strangeloopcanon/growth-and-innovation" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag research">Research</span>
+                </div>
             </div>
         </div>
         <div class="container left" data-date="2023-03">
@@ -511,6 +791,10 @@
                 <p class="date-display"></p>
                 <p>Company knowledge felt scattered across Docs and Slack. Built a system to hoover it all up, pop it in a DB, and let you ask it anything.</p>
                 <a href="https://github.com/strangeloopcanon/company-chat" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag tool">Tool</span>
+                </div>
             </div>
         </div>
         <div class="container right" data-date="2023-03">
@@ -519,6 +803,10 @@
                 <p class="date-display"></p>
                 <p>Wanted GPT answers with actual Google-backed sources. GPT-Search was born. Yeah, should've turned it into Perplexity—hindsight's 20/20, but still a cool hack!</p>
                 <a href="https://github.com/strangeloopcanon/GPT-search" target="_blank">GitHub Repo</a>
+                <div class="project-tags">
+                    <span class="tag ai">AI</span>
+                    <span class="tag tool">Tool</span>
+                </div>
             </div>
         </div>
     </div>
