@@ -5,12 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline of my experiments</title>
     <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --content-bg: white;
+            --timeline-color: #333;
+            --header-color: #666;
+            --shadow: 0 2px 5px rgba(0,0,0,0.1);
+            --border-color: #333;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --content-bg: #2d2d2d;
+            --timeline-color: #e0e0e0;
+            --header-color: #b0b0b0;
+            --shadow: 0 2px 5px rgba(0,0,0,0.3);
+            --border-color: #e0e0e0;
+        }
+
         body {
             font-family: Verdana, Geneva, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f4;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .timeline {
             position: relative;
@@ -22,7 +44,7 @@
             content: '';
             position: absolute;
             width: 2px;
-            background-color: #333;
+            background-color: var(--timeline-color);
             top: 0;
             bottom: 0;
             left: 50%;
@@ -40,8 +62,8 @@
             width: 20px;
             height: 20px;
             right: -10px;
-            background-color: white;
-            border: 2px solid #333;
+            background-color: var(--content-bg);
+            border: 2px solid var(--timeline-color);
             top: 15px;
             border-radius: 50%;
             z-index: 1;
@@ -60,9 +82,9 @@
             width: 0;
             z-index: 1;
             right: 30px;
-            border: medium solid #333;
+            border: medium solid var(--timeline-color);
             border-width: 10px 0 10px 10px;
-            border-color: transparent transparent transparent #333;
+            border-color: transparent transparent transparent var(--timeline-color);
         }
         .right::before {
             content: " ";
@@ -72,28 +94,30 @@
             width: 0;
             z-index: 1;
             left: 30px;
-            border: medium solid #333;
+            border: medium solid var(--timeline-color);
             border-width: 10px 10px 10px 0;
-            border-color: transparent #333 transparent transparent;
+            border-color: transparent var(--timeline-color) transparent transparent;
         }
         .right::after {
             left: -10px;
         }
         .content {
             padding: 20px;
-            background-color: white;
+            background-color: var(--content-bg);
             position: relative;
             border-radius: 6px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
         h2 {
             font-family: Verdana, Geneva, sans-serif;
             margin-top: 0;
+            color: var(--text-color);
         }
         hr {
             border: 0;
             height: 1px;
-            background: #333;
+            background: var(--timeline-color);
             margin: 20px 0;
         }
         @media screen and (max-width: 600px) {
@@ -107,9 +131,9 @@
             }
             .container::before {
                 left: 60px;
-                border: medium solid #333;
+                border: medium solid var(--timeline-color);
                 border-width: 10px 10px 10px 0;
-                border-color: transparent #333 transparent transparent;
+                border-color: transparent var(--timeline-color) transparent transparent;
             }
             .left::after, .right::after {
                 left: 21px;
@@ -121,28 +145,67 @@
         .header {
             text-align: left;
             margin-bottom: 40px;
+            position: relative;
         }
         .header h1 {
             margin: 0;
             font-family: Georgia, serif;
             font-size: 2.5em;
+            color: var(--text-color);
         }
         .header p {
             margin: 10px 0 0;
-            color: #666;
+            color: var(--header-color);
             font-family: Georgia, serif;
             font-size: 1.2em;
         }
         .content a {
-            font-style: italic; /* Make the links italic */
-            font-family: 'Courier New', Courier, monospace; /* Change to desired font */
-        }        
+            font-style: italic;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 1px solid var(--text-color);
+            transition: opacity 0.3s ease;
+        }
+        .content a:hover {
+            opacity: 0.7;
+        }
+        
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--content-bg);
+            border: 2px solid var(--timeline-color);
+            border-radius: 25px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: Verdana, Geneva, sans-serif;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .theme-toggle:hover {
+            background: var(--timeline-color);
+            color: var(--content-bg);
+        }
+        .theme-toggle .icon {
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Product experiments</h1>
         <p>A place to capture my various product ideas!</p>
+        <button class="theme-toggle" id="theme-toggle">
+            <span class="icon">🌙</span>
+            <span class="text">Dark Mode</span>
+        </button>
     </div>
     <hr>
     <div class="timeline" id="timeline">
@@ -446,6 +509,37 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Theme management
+            const themeToggle = document.getElementById('theme-toggle');
+            const icon = themeToggle.querySelector('.icon');
+            const text = themeToggle.querySelector('.text');
+            
+            // Check for saved theme preference or default to light mode
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            updateToggleButton(currentTheme);
+            
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateToggleButton(newTheme);
+            });
+            
+            function updateToggleButton(theme) {
+                if (theme === 'dark') {
+                    icon.textContent = '☀️';
+                    text.textContent = 'Light Mode';
+                } else {
+                    icon.textContent = '🌙';
+                    text.textContent = 'Dark Mode';
+                }
+            }
+
+            // Date formatting for timeline
             const containers = Array.from(document.getElementsByClassName('container'));
 
             containers.forEach(container => {
