@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline of my experiments</title>
+    <title>Product Experiments</title>
+    <meta name="description" content="A timeline of AI, tools, research, and product experiments with links to GitHub repos.">
+    <meta property="og:title" content="Product Experiments">
+    <meta property="og:description" content="A timeline of AI, tools, research, and product experiments.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Product Experiments">
+    <meta name="twitter:description" content="A timeline of AI, tools, research, and product experiments.">
     <style>
         :root {
             --bg-color: #f4f4f4;
@@ -334,7 +341,7 @@
     <div class="header">
         <h1>Product experiments</h1>
         <p>A place to capture my various product ideas!</p>
-        <button class="theme-toggle" id="theme-toggle">
+        <button class="theme-toggle" id="theme-toggle" aria-pressed="false" aria-label="Toggle dark mode">
             <span class="icon">🌙</span>
             <span class="text">Dark Mode</span>
         </button>
@@ -924,10 +931,27 @@
             const icon = themeToggle.querySelector('.icon');
             const text = themeToggle.querySelector('.text');
             
-            // Check for saved theme preference or default to light mode
-            const currentTheme = localStorage.getItem('theme') || 'light';
+            // Check saved preference or fall back to system preference
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', currentTheme);
             updateToggleButton(currentTheme);
+            themeToggle.setAttribute('aria-pressed', currentTheme === 'dark');
+
+            // If user hasn't chosen, follow system changes
+            if (!savedTheme && window.matchMedia) {
+                try {
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                        const newTheme = e.matches ? 'dark' : 'light';
+                        document.documentElement.setAttribute('data-theme', newTheme);
+                        updateToggleButton(newTheme);
+                        themeToggle.setAttribute('aria-pressed', newTheme === 'dark');
+                    });
+                } catch (_) {
+                    // Older Safari: no-op
+                }
+            }
             
             // Theme toggle functionality
             themeToggle.addEventListener('click', function() {
@@ -937,6 +961,7 @@
                 document.documentElement.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
                 updateToggleButton(newTheme);
+                themeToggle.setAttribute('aria-pressed', newTheme === 'dark');
             });
             
             function updateToggleButton(theme) {
@@ -966,9 +991,17 @@
                         year: 'numeric'
                     });
 
-                    // Find the date display paragraph within this container
-                    const dateDisplayElement = container.querySelector('.date-display');
+                    // Find/normalize to a <time> element and set datetime
+                    let dateDisplayElement = container.querySelector('.date-display');
                     if (dateDisplayElement) {
+                        if (dateDisplayElement.tagName.toLowerCase() !== 'time') {
+                            const timeEl = document.createElement('time');
+                            timeEl.className = 'date-display';
+                            dateDisplayElement.replaceWith(timeEl);
+                            dateDisplayElement = timeEl;
+                        }
+                        const mm = String(month).padStart(2, '0');
+                        dateDisplayElement.setAttribute('datetime', `${year}-${mm}-01`);
                         dateDisplayElement.textContent = formattedDate;
                     }
                 }
@@ -979,6 +1012,175 @@
             containers.sort((a, b) => new Date(b.dataset.date) - new Date(a.dataset.date));
             containers.forEach(container => timeline.appendChild(container));
             */
+
+            // Ensure external links are safe
+            document.querySelectorAll('a[target="_blank"]').forEach(a => {
+                const relNow = (a.getAttribute('rel') || '').split(' ').filter(Boolean);
+                const needed = ['noopener', 'noreferrer'];
+                const merged = Array.from(new Set([...relNow, ...needed]));
+                a.setAttribute('rel', merged.join(' '));
+            });
+
+            // Auto-add new GitHub repos (reverse-chronological by created_at)
+            (async function addNewRepos() {
+                const owner = 'strangeloopcanon';
+                const apiBase = `https://api.github.com/users/${owner}/repos`;
+                const perPage = 100;
+                const params = `?per_page=${perPage}&type=owner&sort=created&direction=desc`;
+                try {
+                    let page = 1;
+                    let repos = [];
+                    while (true) {
+                        const resp = await fetch(`${apiBase}${params}&page=${page}`, {
+                            headers: { 'Accept': 'application/vnd.github+json' }
+                        });
+                        if (!resp.ok) break;
+                        const data = await resp.json();
+                        if (!Array.isArray(data) || data.length === 0) break;
+                        repos = repos.concat(data);
+                        const link = resp.headers.get('Link') || '';
+                        if (!link.includes('rel="next"')) break;
+                        page += 1;
+                        if (page > 3) break; // safety cap
+                    }
+
+                    // Filter to original, active repos owned by the account
+                    repos = repos.filter(r => r && !r.fork && !r.archived && r.owner && (r.owner.login || '').toLowerCase() === owner.toLowerCase());
+
+                    // Existing repo names from links already on the page
+                    const existing = new Set(Array.from(document.querySelectorAll('.timeline a[href*="github.com/strangeloopcanon/"]'))
+                        .map(a => {
+                            try { return new URL(a.href).pathname.split('/').pop().toLowerCase(); }
+                            catch { return null; }
+                        })
+                        .filter(Boolean));
+
+                    const missing = repos.filter(r => !existing.has((r.name || '').toLowerCase()));
+                    if (missing.length === 0) return;
+
+                    // Sort newest first by created_at
+                    missing.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                    const timelineEl = document.getElementById('timeline');
+                    let count = document.querySelectorAll('.timeline .container').length;
+
+                    // Insert each new repo at the top, maintaining left/right alternation
+                    for (let i = missing.length - 1; i >= 0; i--) {
+                        const r = missing[i];
+                        const created = new Date(r.created_at);
+                        const year = String(created.getFullYear());
+                        const month = String(created.getMonth() + 1).padStart(2, '0');
+                        const side = (count % 2 === 0) ? 'right' : 'left';
+
+                        const container = document.createElement('div');
+                        container.className = `container ${side}`;
+                        container.setAttribute('data-date', `${year}-${month}`);
+
+                        const content = document.createElement('div');
+                        content.className = 'content';
+
+                        const title = document.createElement('h2');
+                        title.textContent = r.name || 'Untitled';
+
+                        const dateP = document.createElement('p');
+                        dateP.className = 'date-display';
+
+                        const desc = document.createElement('p');
+                        desc.textContent = (r.description || 'GitHub repository.').trim();
+
+                        const link = document.createElement('a');
+                        link.href = r.html_url;
+                        link.textContent = 'GitHub Repo';
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+
+                        const tagsDiv = document.createElement('div');
+                        tagsDiv.className = 'project-tags';
+                        inferTags(r).forEach(tag => {
+                            const span = document.createElement('span');
+                            span.className = `tag ${tag}`;
+                            span.textContent = tagToLabel(tag);
+                            tagsDiv.appendChild(span);
+                        });
+
+                        content.appendChild(title);
+                        content.appendChild(dateP);
+                        content.appendChild(desc);
+                        content.appendChild(link);
+                        content.appendChild(tagsDiv);
+                        container.appendChild(content);
+
+                        // Insert at top
+                        timelineEl.insertBefore(container, timelineEl.firstElementChild);
+
+                        // Format the new date display for this container
+                        const formatted = created.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                        let dateDisplayElement = container.querySelector('.date-display');
+                        if (dateDisplayElement) {
+                            if (dateDisplayElement.tagName.toLowerCase() !== 'time') {
+                                const timeEl = document.createElement('time');
+                                timeEl.className = 'date-display';
+                                dateDisplayElement.replaceWith(timeEl);
+                                dateDisplayElement = timeEl;
+                            }
+                            dateDisplayElement.setAttribute('datetime', `${year}-${month}-01`);
+                            dateDisplayElement.textContent = formatted;
+                        }
+
+                        count += 1;
+                    }
+                } catch (e) {
+                    console.warn('Failed to fetch GitHub repos', e);
+                }
+
+                function inferTags(r) {
+                    const name = (r.name || '').toLowerCase();
+                    const desc = (r.description || '').toLowerCase();
+                    const topics = Array.isArray(r.topics) ? r.topics.map(t => String(t).toLowerCase()) : [];
+                    const text = `${name} ${desc} ${topics.join(' ')}`;
+
+                    const tags = new Set();
+
+                    // AI-related
+                    if (/\b(ai|llm|ml|gpt|agent|agents|qwen|llama|anthropic|claude|openai|rl|grpo|gspo)\b/.test(text)) {
+                        tags.add('ai');
+                    }
+                    // Evaluation/benchmarks
+                    if (/(eval|benchmark|bench|ethic|alignment)/.test(text)) {
+                        tags.add('eval');
+                    }
+                    // Tools/CLIs/integrations
+                    if (/(tool|cli|util|utility|script|scrape|extension|bot|slack|chrome|sync|export|import)/.test(text)) {
+                        tags.add('tool');
+                    }
+                    // Research/experiments
+                    if (/(research|paper|meta|analysis|experiment|explore|prototype|demo)/.test(text)) {
+                        tags.add('research');
+                    }
+                    // Product/app/platform/ui
+                    if (/(product|app|platform|service|ui|web|dashboard)/.test(text)) {
+                        tags.add('product');
+                    }
+                    // If nothing matched, mark as experiment
+                    if (tags.size === 0) tags.add('experiment');
+
+                    // Normalize to our known tag classes and stable order
+                    const order = ['ai', 'product', 'tool', 'eval', 'research', 'experiment'];
+                    return order.filter(t => tags.has(t));
+                }
+
+                function tagToLabel(tag) {
+                    switch (tag) {
+                        case 'ai': return 'AI';
+                        case 'eval': return 'Eval';
+                        case 'tool': return 'Tool';
+                        case 'research': return 'Research';
+                        case 'product': return 'Product';
+                        case 'experiment': return 'Experiment';
+                        default: return tag;
+                    }
+                }
+            })();
         });
     </script>
 </body>
