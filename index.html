@@ -335,6 +335,115 @@
                 box-shadow: var(--shadow);
             }
         }
+
+        /* Controls toolbar */
+        .controls {
+            max-width: 800px;
+            margin: 0 auto 12px auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .chip {
+            padding: 6px 10px;
+            border: 1px solid var(--timeline-color);
+            background: var(--content-bg);
+            color: var(--text-color);
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        .chip.active,
+        .chip:hover {
+            background: var(--timeline-color);
+            color: var(--content-bg);
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .search-input {
+            padding: 6px 10px;
+            border: 1px solid var(--timeline-color);
+            border-radius: 6px;
+            background: var(--content-bg);
+            color: var(--text-color);
+            min-width: 180px;
+        }
+        .sort-select {
+            padding: 6px 10px;
+            border: 1px solid var(--timeline-color);
+            border-radius: 6px;
+            background: var(--content-bg);
+            color: var(--text-color);
+        }
+        .view-toggle {
+            display: inline-flex;
+            border: 1px solid var(--timeline-color);
+            border-radius: 18px;
+            overflow: hidden;
+        }
+        .view-btn {
+            padding: 6px 10px;
+            background: var(--content-bg);
+            color: var(--text-color);
+            border: 0;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .view-btn.active {
+            background: var(--timeline-color);
+            color: var(--content-bg);
+        }
+
+        /* Grid view overrides */
+        .timeline.grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            padding-top: 10px;
+            position: relative;
+        }
+        .timeline.grid::after { /* hide center line */
+            display: none;
+        }
+        .timeline.grid .container {
+            width: auto;
+            padding: 0;
+            position: static;
+        }
+        .timeline.grid .container::before,
+        .timeline.grid .container::after {
+            display: none;
+        }
+        .timeline.grid .content {
+            height: 100%;
+        }
+        .year-header {
+            grid-column: 1 / -1; /* span all columns in grid */
+            color: var(--header-color);
+            font-family: Georgia, serif;
+            margin: 12px 0 0 0;
+            padding-top: 12px;
+            border-top: 1px solid var(--timeline-color);
+        }
+        @media screen and (max-width: 600px) {
+            .controls {
+                gap: 8px;
+            }
+            .actions { width: 100%; }
+            .search-input { flex: 1; min-width: 140px; }
+        }
     </style>
 </head>
 <body>
@@ -347,6 +456,29 @@
         </button>
     </div>
     <hr>
+    <div class="controls" id="controls">
+        <div class="filter-chips" role="group" aria-label="Filter by tag">
+            <button class="chip active" data-tag="all" aria-pressed="true">All</button>
+            <button class="chip" data-tag="ai" aria-pressed="false">AI</button>
+            <button class="chip" data-tag="product" aria-pressed="false">Product</button>
+            <button class="chip" data-tag="tool" aria-pressed="false">Tool</button>
+            <button class="chip" data-tag="eval" aria-pressed="false">Eval</button>
+            <button class="chip" data-tag="research" aria-pressed="false">Research</button>
+            <button class="chip" data-tag="experiment" aria-pressed="false">Experiment</button>
+        </div>
+        <div class="actions">
+            <input type="search" id="search" class="search-input" placeholder="Search projects" aria-label="Search projects">
+            <select id="sort" class="sort-select" aria-label="Sort projects">
+                <option value="created" selected>Newest</option>
+                <option value="updated">Recently Updated</option>
+                <option value="stars">Most Stars</option>
+            </select>
+            <div class="view-toggle" role="group" aria-label="View">
+                <button id="grid-view-btn" class="view-btn" data-view="grid" aria-pressed="false">Grid</button>
+                <button id="timeline-view-btn" class="view-btn" data-view="timeline" aria-pressed="false">Timeline</button>
+            </div>
+        </div>
+    </div>
     <div class="timeline" id="timeline">
         <div class="container right" data-date="2025-08">
             <div class="content">
@@ -1021,6 +1153,132 @@
                 a.setAttribute('rel', merged.join(' '));
             });
 
+            // ----- Layout utilities: grid/timeline, sorting, filtering, year headers -----
+            function parseDateYM(ym) {
+                if (!ym) return new Date(0);
+                const [y, m] = String(ym).split('-');
+                return new Date(parseInt(y, 10), parseInt(m, 10) - 1, 1);
+            }
+
+            function getRepoNameFromContainer(container) {
+                const a = container.querySelector('a[href*="github.com/"]');
+                if (!a) return null;
+                try { return new URL(a.href).pathname.split('/').pop().toLowerCase(); }
+                catch { return null; }
+            }
+
+            function insertYearHeaders() {
+                const timelineEl = document.getElementById('timeline');
+                // cleanup existing
+                Array.from(timelineEl.querySelectorAll('.year-header')).forEach(h => h.remove());
+                const cards = Array.from(timelineEl.querySelectorAll('.container'));
+                let seen = new Set();
+                for (const card of cards) {
+                    const ym = card.dataset.date;
+                    if (!ym) continue;
+                    const year = ym.split('-')[0];
+                    if (!seen.has(year)) {
+                        seen.add(year);
+                        const header = document.createElement('h3');
+                        header.className = 'year-header';
+                        header.textContent = year;
+                        timelineEl.insertBefore(header, card);
+                    }
+                }
+            }
+
+            function sortProjects(mode) {
+                const timelineEl = document.getElementById('timeline');
+                const headers = Array.from(timelineEl.querySelectorAll('.year-header'));
+                headers.forEach(h => h.remove());
+                const cards = Array.from(timelineEl.querySelectorAll('.container'));
+                const getKey = (el) => {
+                    if (mode === 'stars') return parseInt(el.dataset.stars || '0', 10);
+                    if (mode === 'updated') return new Date(el.dataset.updatedAt || el.dataset.date || '1970-01-01');
+                    return parseDateYM(el.dataset.date);
+                };
+                cards.sort((a,b) => {
+                    const ka = getKey(a); const kb = getKey(b);
+                    if (mode === 'stars') return kb - ka;
+                    return kb - ka;
+                });
+                cards.forEach(c => timelineEl.appendChild(c));
+                insertYearHeaders();
+            }
+
+            function applyFilters() {
+                const activeChip = document.querySelector('.chip.active');
+                const tag = activeChip ? activeChip.dataset.tag : 'all';
+                const q = (document.getElementById('search')?.value || '').trim().toLowerCase();
+                const cards = Array.from(document.querySelectorAll('.timeline .container'));
+                cards.forEach(c => {
+                    let ok = true;
+                    if (tag && tag !== 'all') {
+                        ok = !!c.querySelector(`.project-tags .tag.${tag}`);
+                    }
+                    if (ok && q) {
+                        const title = (c.querySelector('h2')?.textContent || '').toLowerCase();
+                        const pTags = c.querySelectorAll('p');
+                        const desc = (pTags.length > 1 ? pTags[1].textContent : pTags[0]?.textContent || '').toLowerCase();
+                        ok = title.includes(q) || desc.includes(q);
+                    }
+                    c.style.display = ok ? '' : 'none';
+                });
+                // Hide year headers with no following visible cards until next header
+                const timelineEl = document.getElementById('timeline');
+                const children = Array.from(timelineEl.children);
+                for (let i = 0; i < children.length; i++) {
+                    const el = children[i];
+                    if (el.classList && el.classList.contains('year-header')) {
+                        let anyVisible = false;
+                        for (let j = i + 1; j < children.length; j++) {
+                            const next = children[j];
+                            if (next.classList && next.classList.contains('year-header')) break;
+                            if (next.classList && next.classList.contains('container') && next.style.display !== 'none') { anyVisible = true; break; }
+                        }
+                        el.style.display = anyVisible ? '' : 'none';
+                    }
+                }
+            }
+
+            function setView(view) {
+                const timelineEl = document.getElementById('timeline');
+                const gridBtn = document.getElementById('grid-view-btn');
+                const timeBtn = document.getElementById('timeline-view-btn');
+                const isGrid = view === 'grid';
+                timelineEl.classList.toggle('grid', isGrid);
+                if (gridBtn && timeBtn) {
+                    gridBtn.classList.toggle('active', isGrid);
+                    timeBtn.classList.toggle('active', !isGrid);
+                    gridBtn.setAttribute('aria-pressed', String(isGrid));
+                    timeBtn.setAttribute('aria-pressed', String(!isGrid));
+                }
+                localStorage.setItem('view', view);
+            }
+
+            // Setup controls
+            const savedView = localStorage.getItem('view') || (window.innerWidth >= 700 ? 'grid' : 'timeline');
+            setView(savedView);
+            insertYearHeaders();
+            applyFilters();
+
+            const gridBtnInit = document.getElementById('grid-view-btn');
+            const timelineBtnInit = document.getElementById('timeline-view-btn');
+            gridBtnInit && gridBtnInit.addEventListener('click', () => setView('grid'));
+            timelineBtnInit && timelineBtnInit.addEventListener('click', () => setView('timeline'));
+            const searchInput = document.getElementById('search');
+            searchInput && searchInput.addEventListener('input', applyFilters);
+            const sortSelect = document.getElementById('sort');
+            sortSelect && sortSelect.addEventListener('change', (e) => sortProjects(e.target.value));
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.chip').forEach(c => { c.classList.remove('active'); c.setAttribute('aria-pressed', 'false'); });
+                    chip.classList.add('active');
+                    chip.setAttribute('aria-pressed', 'true');
+                    applyFilters();
+                });
+            });
+
             // Auto-add new GitHub repos (reverse-chronological by created_at)
             (async function addNewRepos() {
                 const owner = 'strangeloopcanon';
@@ -1046,6 +1304,23 @@
 
                     // Filter to original, active repos owned by the account
                     repos = repos.filter(r => r && !r.fork && !r.archived && r.owner && (r.owner.login || '').toLowerCase() === owner.toLowerCase());
+
+                    // Hydrate existing containers with stars and updated timestamps
+                    const byName = new Map(repos.map(r => [String(r.name || '').toLowerCase(), r]));
+                    Array.from(document.querySelectorAll('.timeline .container')).forEach(c => {
+                        const a = c.querySelector('a[href*="github.com/strangeloopcanon/"]');
+                        let name = null;
+                        if (a) {
+                            try { name = new URL(a.href).pathname.split('/').pop().toLowerCase(); } catch {}
+                        }
+                        const r = name ? byName.get(name) : null;
+                        if (r) {
+                            c.dataset.stars = String(r.stargazers_count || 0);
+                            c.dataset.updatedAt = r.pushed_at || '';
+                        } else {
+                            c.dataset.stars = c.dataset.stars || '0';
+                        }
+                    });
 
                     // Existing repo names from links already on the page
                     const existing = new Set(Array.from(document.querySelectorAll('.timeline a[href*="github.com/strangeloopcanon/"]'))
@@ -1075,6 +1350,8 @@
                         const container = document.createElement('div');
                         container.className = `container ${side}`;
                         container.setAttribute('data-date', `${year}-${month}`);
+                        container.dataset.stars = String(r.stargazers_count || 0);
+                        container.dataset.updatedAt = r.pushed_at || '';
 
                         const content = document.createElement('div');
                         content.className = 'content';
@@ -1129,6 +1406,12 @@
 
                         count += 1;
                     }
+
+                    // After insertion: sort per selection and re-apply filters
+                    const sortMode = (document.getElementById('sort')?.value || 'created');
+                    sortProjects(sortMode);
+                    insertYearHeaders();
+                    applyFilters();
                 } catch (e) {
                     console.warn('Failed to fetch GitHub repos', e);
                 }
