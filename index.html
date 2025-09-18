@@ -351,6 +351,20 @@
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 16px;
         }
+        /* Reset timeline styles for cards inside pinned grid */
+        .pinned-grid .container {
+            width: auto;
+            padding: 0;
+            position: static;
+        }
+        .pinned-grid .container::before,
+        .pinned-grid .container::after,
+        .pinned-grid .left::before,
+        .pinned-grid .right::before {
+            display: none;
+        }
+        .pinned-grid .left,
+        .pinned-grid .right { left: auto; }
         .pin-btn {
             position: absolute;
             top: 8px;
