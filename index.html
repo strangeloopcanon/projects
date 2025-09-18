@@ -336,6 +336,40 @@
             }
         }
 
+        /* Pinned section */
+        .pinned {
+            max-width: 1000px;
+            margin: 0 auto 14px auto;
+        }
+        .pinned-title {
+            margin: 0 0 8px 0;
+            font-family: Georgia, serif;
+            color: var(--text-color);
+        }
+        .pinned-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .pin-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            border: 1px solid var(--timeline-color);
+            background: var(--content-bg);
+            color: var(--text-color);
+            border-radius: 14px;
+            font-size: 12px;
+            padding: 4px 8px;
+            cursor: pointer;
+            opacity: 0.9;
+        }
+        .pin-btn.active,
+        .pin-btn:hover {
+            background: var(--timeline-color);
+            color: var(--content-bg);
+        }
+
         /* Controls toolbar */
         .controls {
             max-width: 800px;
@@ -456,6 +490,10 @@
         </button>
     </div>
     <hr>
+    <div class="pinned" id="pinned" style="display:none;">
+        <h2 class="pinned-title">Pinned</h2>
+        <div class="pinned-grid" id="pinned-grid"></div>
+    </div>
     <div class="controls" id="controls">
         <div class="filter-chips" role="group" aria-label="Filter by tag">
             <button class="chip active" data-tag="all" aria-pressed="true">All</button>
@@ -469,8 +507,8 @@
         <div class="actions">
             <input type="search" id="search" class="search-input" placeholder="Search projects" aria-label="Search projects">
             <select id="sort" class="sort-select" aria-label="Sort projects">
-                <option value="created" selected>Newest</option>
-                <option value="updated">Recently Updated</option>
+                <option value="created">Newest</option>
+                <option value="updated" selected>Recently Updated</option>
                 <option value="stars">Most Stars</option>
             </select>
             <div class="view-toggle" role="group" aria-label="View">
@@ -1153,7 +1191,7 @@
                 a.setAttribute('rel', merged.join(' '));
             });
 
-            // ----- Layout utilities: grid/timeline, sorting, filtering, year headers -----
+            // ----- Layout utilities: grid/timeline, sorting, filtering, year headers, pinning -----
             function parseDateYM(ym) {
                 if (!ym) return new Date(0);
                 const [y, m] = String(ym).split('-');
@@ -1256,11 +1294,89 @@
                 localStorage.setItem('view', view);
             }
 
+            // Pinned management
+            function getRepoNameFromURL(href) {
+                try { return new URL(href).pathname.split('/').pop().toLowerCase(); } catch { return null; }
+            }
+            function repoNameForContainer(c) {
+                const a = c.querySelector('a[href*="github.com/"]');
+                return a ? getRepoNameFromURL(a.href) : null;
+            }
+            function renderPinButtons() {
+                const pinnedSet = getPinnedSet();
+                Array.from(document.querySelectorAll('.timeline .container, #pinned-grid .container')).forEach(c => {
+                    const content = c.querySelector('.content');
+                    if (!content) return;
+                    let btn = content.querySelector('.pin-btn');
+                    if (!btn) {
+                        btn = document.createElement('button');
+                        btn.className = 'pin-btn';
+                        btn.type = 'button';
+                        btn.setAttribute('aria-label', 'Pin project');
+                        content.appendChild(btn);
+                    }
+                    const name = repoNameForContainer(c);
+                    const active = name && pinnedSet.has(name);
+                    btn.classList.toggle('active', !!active);
+                    btn.textContent = active ? 'Unpin' : 'Pin';
+                    btn.onclick = () => {
+                        const current = getPinnedSet();
+                        const repo = repoNameForContainer(c);
+                        if (!repo) return;
+                        if (current.has(repo)) current.delete(repo); else current.add(repo);
+                        setPinnedSet(current);
+                        applyPinned();
+                        applyFilters();
+                    };
+                });
+            }
+            function getPinnedSet() {
+                const raw = localStorage.getItem('pinned');
+                const arr = raw ? JSON.parse(raw) : [];
+                return new Set(arr.map(s => String(s).toLowerCase()));
+            }
+            function setPinnedSet(set) {
+                localStorage.setItem('pinned', JSON.stringify(Array.from(set)));
+            }
+            function applyPinned() {
+                const pinnedEl = document.getElementById('pinned');
+                const pinnedGrid = document.getElementById('pinned-grid');
+                const pinnedSet = getPinnedSet();
+                // Move containers into/out of pinned grid
+                const all = Array.from(document.querySelectorAll('.timeline .container, #pinned-grid .container'));
+                all.forEach(c => {
+                    const name = repoNameForContainer(c);
+                    if (!name) return;
+                    if (pinnedSet.has(name)) {
+                        if (c.parentElement !== pinnedGrid) pinnedGrid.appendChild(c);
+                    } else {
+                        if (c.parentElement === pinnedGrid) document.getElementById('timeline').insertBefore(c, document.getElementById('timeline').firstChild);
+                    }
+                });
+                // Sort pinned grid by stars desc then updated
+                const pinnedCards = Array.from(pinnedGrid.querySelectorAll('.container'));
+                pinnedCards.sort((a,b) => {
+                    const sa = parseInt(a.dataset.stars || '0', 10), sb = parseInt(b.dataset.stars || '0', 10);
+                    if (sb !== sa) return sb - sa;
+                    const ua = new Date(a.dataset.updatedAt || a.dataset.date || '1970-01-01');
+                    const ub = new Date(b.dataset.updatedAt || b.dataset.date || '1970-01-01');
+                    return ub - ua;
+                });
+                pinnedCards.forEach(c => pinnedGrid.appendChild(c));
+                // Show/hide pinned section
+                pinnedEl.style.display = pinnedSet.size > 0 ? '' : 'none';
+                renderPinButtons();
+                insertYearHeaders();
+            }
+
             // Setup controls
             const savedView = localStorage.getItem('view') || (window.innerWidth >= 700 ? 'grid' : 'timeline');
             setView(savedView);
+            // Default sort to Recently Updated
+            sortProjects('updated');
             insertYearHeaders();
             applyFilters();
+            renderPinButtons();
 
             const gridBtnInit = document.getElementById('grid-view-btn');
             const timelineBtnInit = document.getElementById('timeline-view-btn');
@@ -1331,7 +1447,6 @@
                         .filter(Boolean));
 
                     const missing = repos.filter(r => !existing.has((r.name || '').toLowerCase()));
-                    if (missing.length === 0) return;
 
                     // Sort newest first by created_at
                     missing.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -1408,9 +1523,18 @@
                     }
 
                     // After insertion: sort per selection and re-apply filters
-                    const sortMode = (document.getElementById('sort')?.value || 'created');
+                    const sortMode = (document.getElementById('sort')?.value || 'updated');
                     sortProjects(sortMode);
                     insertYearHeaders();
+                    renderPinButtons();
+                    // Initialize default pinned to top-starred if none set
+                    let pinnedSet = getPinnedSet();
+                    if (pinnedSet.size === 0 && repos.length > 0) {
+                        const topStarred = repos.slice().sort((a,b) => (b.stargazers_count||0) - (a.stargazers_count||0)).slice(0, 6);
+                        pinnedSet = new Set(topStarred.map(r => String(r.name || '').toLowerCase()));
+                        setPinnedSet(pinnedSet);
+                    }
+                    applyPinned();
                     applyFilters();
                 } catch (e) {
                     console.warn('Failed to fetch GitHub repos', e);
@@ -1425,23 +1549,23 @@
                     const tags = new Set();
 
                     // AI-related
-                    if (/\b(ai|llm|ml|gpt|agent|agents|qwen|llama|anthropic|claude|openai|rl|grpo|gspo)\b/.test(text)) {
+                    if (/\b(ai|llm|ml|gpt|agent|agents|qwen|llama|mistral|anthropic|claude|openai|rl|sft|grpo|gspo|instruct|finetun|prompt)\b/.test(text)) {
                         tags.add('ai');
                     }
                     // Evaluation/benchmarks
-                    if (/(eval|benchmark|bench|ethic|alignment)/.test(text)) {
+                    if (/(eval|benchmark|bench|ethic|alignment|score|metric|testset|dataset)/.test(text)) {
                         tags.add('eval');
                     }
                     // Tools/CLIs/integrations
-                    if (/(tool|cli|util|utility|script|scrape|extension|bot|slack|chrome|sync|export|import)/.test(text)) {
+                    if (/(tool|cli|util|utility|script|scrape|crawler|extension|plugin|bot|slack|chrome|sync|export|import|workflow|pipeline)/.test(text)) {
                         tags.add('tool');
                     }
                     // Research/experiments
-                    if (/(research|paper|meta|analysis|experiment|explore|prototype|demo)/.test(text)) {
+                    if (/(research|paper|meta|analysis|experiment|explore|prototype|demo|study)/.test(text)) {
                         tags.add('research');
                     }
                     // Product/app/platform/ui
-                    if (/(product|app|platform|service|ui|web|dashboard)/.test(text)) {
+                    if (/(product|app|platform|service|ui|web|dashboard|frontend|backend|api)/.test(text)) {
                         tags.add('product');
                     }
                     // If nothing matched, mark as experiment
