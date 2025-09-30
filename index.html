@@ -26,10 +26,10 @@
             --bg-color: #1a1a1a;
             --text-color: #e0e0e0;
             --content-bg: #2d2d2d;
-            --timeline-color: #e0e0e0;
+            --timeline-color: #b5b5b5;
             --header-color: #b0b0b0;
             --shadow: 0 2px 5px rgba(0,0,0,0.3);
-            --border-color: #e0e0e0;
+            --border-color: #b5b5b5;
         }
 
         body {
@@ -336,6 +336,48 @@
             }
         }
 
+        .desc-toggle {
+            display: none;
+            margin-top: 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--timeline-color);
+            background: transparent;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .desc-toggle:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 2px;
+        }
+        .desc-body {
+            display: block;
+        }
+        @media (max-width: 600px) {
+            .desc-body.mobile-clamp:not(.expanded) {
+                display: -webkit-box;
+                -webkit-line-clamp: 4;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .desc-body.mobile-clamp.expanded {
+                display: block;
+                overflow: visible;
+            }
+            .desc-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background-color: var(--content-bg);
+                align-self: flex-start;
+            }
+            [data-theme="dark"] .desc-toggle {
+                background-color: transparent;
+            }
+        }
+
         /* Pinned section */
         .pinned {
             max-width: 1000px;
@@ -548,7 +590,7 @@
             <div class="content">
                 <h2>foresight-forge</h2>
                 <p class="date-display"></p>
-                <p>Built an AI that doesn't just read the news—it predicts what's coming next. Automated ingestion, smart summaries, and threaded discussions because the future belongs to those who see it coming.</p>
+                <p>Daily forecasting pipeline that ingests the news, distills the signal, publishes probabilistic predictions, and threads community feedback into a Markdown briefing.</p>
                 <a href="https://github.com/strangeloopcanon/foresight-forge" target="_blank">GitHub Repo</a>
                 <div class="project-tags">
                     <span class="tag ai">AI</span>
@@ -644,7 +686,7 @@
             <div class="content">
                 <h2>Agentic_search</h2>
                 <p class="date-display"></p>
-                <p>Search is broken—we get links, not answers. Built an agentic search system on Claude that actually thinks about what you're asking and finds the real insights, not just keywords.</p>
+                <p>Claude-powered research assistant that blends semantic RAG discovery with tool-driven deep dives and auto-evaluation loops, so questions come back with sourced, defensible answers.</p>
                 <a href="https://github.com/strangeloopcanon/Agentic_search" target="_blank">GitHub Repo</a>
                 <div class="project-tags">
                     <span class="tag ai">AI</span>
@@ -693,11 +735,11 @@
             <div class="content">
                 <h2>Galen</h2>
                 <p class="date-display"></p>
-                <p>Life science data is hard to analyse, we need a way to query and analyse it. So I built Galen, an AI sidekick that deciphers your docs and DBs, turning data dumps into 'aha!' moments—because insights shouldn't be that hard to find.</p>
+                <p>Life sciences need task-level evals, so Galen runs mission-style workflows—data extraction, analysis, reporting—to show which LLMs can actually keep up in the lab.</p>
                 <a href="https://github.com/strangeloopcanon/galen" target="_blank">GitHub Repo</a>
                 <div class="project-tags">
                     <span class="tag ai">AI</span>
-                    <span class="tag product">Product</span>
+                    <span class="tag eval">Eval</span>
                 </div>
             </div>
         </div>
@@ -1219,6 +1261,60 @@
                 catch { return null; }
             }
 
+            const mobileMediaQuery = window.matchMedia('(max-width: 600px)');
+
+            function getDescriptionParagraph(content) {
+                if (!content) return null;
+                const paragraphs = Array.from(content.querySelectorAll('p'));
+                for (const p of paragraphs) {
+                    if (!p.classList.contains('date-display')) return p;
+                }
+                return null;
+            }
+
+            function updateDescriptionClamps() {
+                const isMobile = mobileMediaQuery.matches;
+                const cards = Array.from(document.querySelectorAll('.timeline .content, #pinned-grid .content'));
+                cards.forEach(card => {
+                    const desc = getDescriptionParagraph(card);
+                    if (!desc) return;
+                    desc.classList.add('desc-body');
+                    let toggle = card.querySelector('.desc-toggle');
+                    if (isMobile) {
+                        desc.classList.add('mobile-clamp');
+                        if (!toggle) {
+                            toggle = document.createElement('button');
+                            toggle.className = 'desc-toggle';
+                            toggle.type = 'button';
+                            toggle.textContent = 'Read more';
+                            toggle.addEventListener('click', (event) => {
+                                event.stopPropagation();
+                                const expanded = desc.classList.toggle('expanded');
+                                toggle.textContent = expanded ? 'Show less' : 'Read more';
+                            });
+                            card.appendChild(toggle);
+                        }
+                        const needsToggle = desc.scrollHeight > desc.clientHeight + 1;
+                        if (needsToggle) {
+                            toggle.style.display = '';
+                            toggle.textContent = desc.classList.contains('expanded') ? 'Show less' : 'Read more';
+                        } else {
+                            toggle.style.display = 'none';
+                            if (desc.classList.contains('expanded')) desc.classList.remove('expanded');
+                            toggle.textContent = 'Read more';
+                        }
+                    } else {
+                        desc.classList.remove('mobile-clamp', 'expanded');
+                        if (toggle) toggle.remove();
+                    }
+                });
+            }
+            if (typeof mobileMediaQuery.addEventListener === 'function') {
+                mobileMediaQuery.addEventListener('change', updateDescriptionClamps);
+            } else if (typeof mobileMediaQuery.addListener === 'function') {
+                mobileMediaQuery.addListener(updateDescriptionClamps);
+            }
+
             function insertYearHeaders() {
                 const timelineEl = document.getElementById('timeline');
                 // cleanup existing
@@ -1256,6 +1352,7 @@
                 });
                 cards.forEach(c => timelineEl.appendChild(c));
                 insertYearHeaders();
+                updateDescriptionClamps();
             }
 
             function applyFilters() {
@@ -1291,6 +1388,7 @@
                         el.style.display = anyVisible ? '' : 'none';
                     }
                 }
+                updateDescriptionClamps();
             }
 
             function setView(view) {
@@ -1381,6 +1479,7 @@
                 pinnedEl.style.display = pinnedSet.size > 0 ? '' : 'none';
                 renderPinButtons();
                 insertYearHeaders();
+                updateDescriptionClamps();
             }
 
             // Setup controls
@@ -1391,6 +1490,7 @@
             insertYearHeaders();
             applyFilters();
             renderPinButtons();
+            updateDescriptionClamps();
 
             const gridBtnInit = document.getElementById('grid-view-btn');
             const timelineBtnInit = document.getElementById('timeline-view-btn');
