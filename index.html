@@ -521,8 +521,8 @@
         <div class="actions">
             <input type="search" id="search" class="search-input" placeholder="Search projects" aria-label="Search projects">
             <select id="sort" class="sort-select" aria-label="Sort projects">
-                <option value="created">Newest</option>
-                <option value="updated" selected>Recently Updated</option>
+                <option value="created" selected>Newest</option>
+                <option value="updated">Recently Updated</option>
                 <option value="stars">Most Stars</option>
             </select>
             <div class="view-toggle" role="group" aria-label="View">
@@ -1386,8 +1386,8 @@
             // Setup controls
             const savedView = localStorage.getItem('view') || (window.innerWidth >= 700 ? 'grid' : 'timeline');
             setView(savedView);
-            // Default sort to Recently Updated
-            sortProjects('updated');
+            // Default sort to Newest entries (reverse chronological by creation)
+            sortProjects('created');
             insertYearHeaders();
             applyFilters();
             renderPinButtons();
@@ -1537,7 +1537,7 @@
                     }
 
                     // After insertion: sort per selection and re-apply filters
-                    const sortMode = (document.getElementById('sort')?.value || 'updated');
+                    const sortMode = (document.getElementById('sort')?.value || 'created');
                     sortProjects(sortMode);
                     insertYearHeaders();
                     renderPinButtons();
