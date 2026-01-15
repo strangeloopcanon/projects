@@ -13,13 +13,15 @@
     <meta name="twitter:description" content="A timeline of AI, tools, research, and product experiments.">
     <style>
         :root {
+            --page-max: 1000px;
             --bg-color: #f4f4f4;
             --text-color: #333;
             --content-bg: white;
             --timeline-color: #333;
             --header-color: #666;
-            --shadow: 0 2px 5px rgba(0,0,0,0.1);
-            --border-color: #333;
+            --shadow: 0 2px 6px rgba(0,0,0,0.1);
+            --card-border: rgba(0, 0, 0, 0.12);
+            --card-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.18);
         }
 
         [data-theme="dark"] {
@@ -28,24 +30,33 @@
             --content-bg: #2d2d2d;
             --timeline-color: #b5b5b5;
             --header-color: #b0b0b0;
-            --shadow: 0 2px 5px rgba(0,0,0,0.3);
-            --border-color: #b5b5b5;
+            --shadow: 0 2px 8px rgba(0,0,0,0.35);
+            --card-border: rgba(255, 255, 255, 0.14);
+            --card-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: Verdana, Geneva, sans-serif;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
+            padding: 24px;
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s ease, color 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
         .timeline {
             position: relative;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px 0;
+            max-width: var(--page-max);
+            margin: 32px auto;
+            padding: 16px 0;
         }
         .timeline::after {
             content: '';
@@ -112,19 +123,26 @@
             padding: 20px;
             background-color: var(--content-bg);
             position: relative;
-            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
             box-shadow: var(--shadow);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            transition: background-color 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
         }
         h2 {
-            font-family: Verdana, Geneva, sans-serif;
-            margin-top: 0;
+            font-family: inherit;
+            margin: 0;
             color: var(--text-color);
+        }
+        .content p {
+            margin: 0;
         }
         hr {
             border: 0;
             height: 1px;
-            background: var(--timeline-color);
+            background: var(--card-border);
             margin: 20px 0;
         }
         @media screen and (max-width: 600px) {
@@ -151,7 +169,8 @@
         }
         .header {
             text-align: left;
-            margin-bottom: 40px;
+            max-width: var(--page-max);
+            margin: 0 auto 32px auto;
             position: relative;
         }
         .header h1 {
@@ -167,15 +186,27 @@
             font-size: 1.2em;
         }
         .content a {
-            font-style: italic;
-            font-family: 'Courier New', Courier, monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-style: normal;
+            font-family: inherit;
             color: var(--text-color);
             text-decoration: none;
-            border-bottom: 1px solid var(--text-color);
-            transition: opacity 0.3s ease;
+            border: 1px solid var(--card-border);
+            border-radius: 999px;
+            padding: 6px 10px;
+            transition: all 0.2s ease;
+            width: fit-content;
         }
         .content a:hover {
-            opacity: 0.7;
+            background: var(--timeline-color);
+            color: var(--content-bg);
+            border-color: var(--timeline-color);
+        }
+        .content a:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 2px;
         }
         
         /* Dark mode toggle */
@@ -184,12 +215,12 @@
             top: 20px;
             right: 20px;
             background: var(--content-bg);
-            border: 2px solid var(--timeline-color);
+            border: 1px solid var(--card-border);
             border-radius: 25px;
             padding: 8px 12px;
             cursor: pointer;
             font-size: 14px;
-            font-family: Verdana, Geneva, sans-serif;
+            font-family: inherit;
             color: var(--text-color);
             transition: all 0.3s ease;
             display: flex;
@@ -203,13 +234,17 @@
         .theme-toggle .icon {
             font-size: 16px;
         }
+        .theme-toggle:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 2px;
+        }
         
         /* Project category tags */
         .project-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-top: 12px;
+            margin-top: 0;
         }
         
         .tag {
@@ -302,7 +337,7 @@
                 align-self: flex-end;
             }
             .project-tags {
-                margin-top: 10px;
+                margin-top: 0;
                 gap: 4px;
             }
             .tag {
@@ -321,12 +356,11 @@
         /* Touch-friendly interactions */
         .content {
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
         .content:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow), 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow), var(--card-shadow-hover);
         }
         
         @media (hover: none) {
@@ -338,7 +372,7 @@
 
         .desc-toggle {
             display: none;
-            margin-top: 10px;
+            margin-top: 0;
             padding: 4px 10px;
             border-radius: 999px;
             border: 1px solid var(--timeline-color);
@@ -354,6 +388,16 @@
         }
         .desc-body {
             display: block;
+        }
+        .desc-body.grid-clamp:not(.expanded) {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .desc-body.grid-clamp.expanded {
+            display: block;
+            overflow: visible;
         }
         @media (max-width: 600px) {
             .desc-body.mobile-clamp:not(.expanded) {
@@ -380,7 +424,7 @@
 
         /* Pinned section */
         .pinned {
-            max-width: 1000px;
+            max-width: var(--page-max);
             margin: 0 auto 14px auto;
         }
         .pinned-title {
@@ -391,7 +435,7 @@
         .pinned-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
+            gap: 20px;
         }
         /* Reset timeline styles for cards inside pinned grid */
         .pinned-grid .container {
@@ -411,30 +455,52 @@
             position: absolute;
             top: 8px;
             right: 8px;
-            border: 1px solid var(--timeline-color);
+            border: 1px solid var(--card-border);
             background: var(--content-bg);
             color: var(--text-color);
             border-radius: 14px;
             font-size: 12px;
             padding: 4px 8px;
             cursor: pointer;
-            opacity: 0.9;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-2px);
+            transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+        .content:hover .pin-btn,
+        .content:focus-within .pin-btn,
+        .pin-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
         }
         .pin-btn.active,
         .pin-btn:hover {
             background: var(--timeline-color);
             color: var(--content-bg);
         }
+        @media (hover: none) {
+            .pin-btn {
+                opacity: 1;
+                pointer-events: auto;
+                transform: none;
+            }
+        }
 
         /* Controls toolbar */
         .controls {
-            max-width: 800px;
-            margin: 0 auto 12px auto;
+            max-width: var(--page-max);
+            margin: 0 auto 16px auto;
             display: flex;
             flex-wrap: wrap;
             gap: 10px 12px;
             align-items: center;
             justify-content: space-between;
+            background: var(--content-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: var(--shadow);
         }
         .filter-chips {
             display: flex;
@@ -443,8 +509,8 @@
         }
         .chip {
             padding: 6px 10px;
-            border: 1px solid var(--timeline-color);
-            background: var(--content-bg);
+            border: 1px solid var(--card-border);
+            background: transparent;
             color: var(--text-color);
             border-radius: 16px;
             cursor: pointer;
@@ -455,6 +521,11 @@
         .chip:hover {
             background: var(--timeline-color);
             color: var(--content-bg);
+            border-color: var(--timeline-color);
+        }
+        .chip:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 2px;
         }
         .actions {
             display: flex;
@@ -464,28 +535,36 @@
         }
         .search-input {
             padding: 6px 10px;
-            border: 1px solid var(--timeline-color);
+            border: 1px solid var(--card-border);
             border-radius: 6px;
             background: var(--content-bg);
             color: var(--text-color);
             min-width: 180px;
         }
+        .search-input:focus-visible {
+            outline: 2px solid var(--timeline-color);
+            outline-offset: 2px;
+        }
         .sort-select {
             padding: 6px 10px;
-            border: 1px solid var(--timeline-color);
+            border: 1px solid var(--card-border);
             border-radius: 6px;
             background: var(--content-bg);
             color: var(--text-color);
         }
+        .sort-select:focus-visible {
+            outline: 2px solid var(--timeline-color);
+            outline-offset: 2px;
+        }
         .view-toggle {
             display: inline-flex;
-            border: 1px solid var(--timeline-color);
+            border: 1px solid var(--card-border);
             border-radius: 18px;
             overflow: hidden;
         }
         .view-btn {
             padding: 6px 10px;
-            background: var(--content-bg);
+            background: transparent;
             color: var(--text-color);
             border: 0;
             cursor: pointer;
@@ -495,12 +574,16 @@
             background: var(--timeline-color);
             color: var(--content-bg);
         }
+        .view-btn:focus-visible {
+            outline: 2px solid var(--timeline-color);
+            outline-offset: 2px;
+        }
 
         /* Grid view overrides */
         .timeline.grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
+            gap: 20px;
             padding-top: 10px;
             position: relative;
         }
@@ -523,9 +606,37 @@
             grid-column: 1 / -1; /* span all columns in grid */
             color: var(--header-color);
             font-family: Georgia, serif;
-            margin: 12px 0 0 0;
-            padding-top: 12px;
+            margin: 32px 0 10px 0;
+            padding: 18px 0 10px 0;
             border-top: 1px solid var(--timeline-color);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            background: var(--bg-color);
+        }
+        .timeline:not(.grid) .container {
+            margin: 14px 0;
+        }
+        .timeline.grid .container,
+        .pinned-grid .container {
+            margin: 0;
+        }
+        .meta-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 0;
+            color: var(--header-color);
+            font-size: 0.95em;
+        }
+        .meta-row .date-display {
+            margin: 0;
+        }
+        .stars {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            opacity: 0.9;
         }
         @media screen and (max-width: 600px) {
             .controls {
@@ -1274,14 +1385,22 @@
 
             function updateDescriptionClamps() {
                 const isMobile = mobileMediaQuery.matches;
+                const isGridView = document.getElementById('timeline')?.classList.contains('grid') === true;
                 const cards = Array.from(document.querySelectorAll('.timeline .content, #pinned-grid .content'));
+
                 cards.forEach(card => {
                     const desc = getDescriptionParagraph(card);
                     if (!desc) return;
                     desc.classList.add('desc-body');
+
+                    const inPinned = card.closest('#pinned-grid') !== null;
+                    const shouldClamp = isMobile || isGridView || inPinned;
+
                     let toggle = card.querySelector('.desc-toggle');
-                    if (isMobile) {
-                        desc.classList.add('mobile-clamp');
+                    if (shouldClamp) {
+                        desc.classList.toggle('mobile-clamp', isMobile);
+                        desc.classList.toggle('grid-clamp', !isMobile);
+
                         if (!toggle) {
                             toggle = document.createElement('button');
                             toggle.className = 'desc-toggle';
@@ -1292,11 +1411,18 @@
                                 const expanded = desc.classList.toggle('expanded');
                                 toggle.textContent = expanded ? 'Show less' : 'Read more';
                             });
-                            card.appendChild(toggle);
                         }
+                        if (toggle && toggle.previousElementSibling !== desc) {
+                            desc.insertAdjacentElement('afterend', toggle);
+                        }
+
+                        const wasExpanded = desc.classList.contains('expanded');
+                        if (wasExpanded) desc.classList.remove('expanded');
                         const needsToggle = desc.scrollHeight > desc.clientHeight + 1;
-                        if (needsToggle) {
-                            toggle.style.display = '';
+                        if (wasExpanded) desc.classList.add('expanded');
+
+                        if (needsToggle || wasExpanded) {
+                            toggle.style.display = 'inline-flex';
                             toggle.textContent = desc.classList.contains('expanded') ? 'Show less' : 'Read more';
                         } else {
                             toggle.style.display = 'none';
@@ -1304,7 +1430,7 @@
                             toggle.textContent = 'Read more';
                         }
                     } else {
-                        desc.classList.remove('mobile-clamp', 'expanded');
+                        desc.classList.remove('mobile-clamp', 'grid-clamp', 'expanded');
                         if (toggle) toggle.remove();
                     }
                 });
@@ -1313,6 +1439,64 @@
                 mobileMediaQuery.addEventListener('change', updateDescriptionClamps);
             } else if (typeof mobileMediaQuery.addListener === 'function') {
                 mobileMediaQuery.addListener(updateDescriptionClamps);
+            }
+
+            function updateMetaRows() {
+                const containers = Array.from(document.querySelectorAll('.timeline .container, #pinned-grid .container'));
+                containers.forEach(container => {
+                    const content = container.querySelector('.content');
+                    if (!content) return;
+
+                    const dateEl = content.querySelector('.date-display');
+                    if (!dateEl) return;
+
+                    let meta = content.querySelector('.meta-row');
+                    if (!meta) {
+                        meta = document.createElement('div');
+                        meta.className = 'meta-row';
+                    }
+
+                    const desc = getDescriptionParagraph(content);
+                    if (meta.parentElement !== content) {
+                        content.insertBefore(meta, desc || content.firstChild);
+                    } else if (desc && meta.nextSibling !== desc) {
+                        content.insertBefore(meta, desc);
+                    }
+
+                    if (dateEl.parentElement !== meta) {
+                        meta.appendChild(dateEl);
+                    }
+
+                    let starsEl = meta.querySelector('.stars');
+                    if (!starsEl) {
+                        starsEl = document.createElement('span');
+                        starsEl.className = 'stars';
+                        meta.appendChild(starsEl);
+                    }
+                    const stars = parseInt(container.dataset.stars || '0', 10);
+                    if (stars > 0) {
+                        starsEl.textContent = `★ ${stars}`;
+                        starsEl.style.display = '';
+                    } else {
+                        starsEl.textContent = '';
+                        starsEl.style.display = 'none';
+                    }
+                });
+            }
+
+            function attachCardClickHandlers() {
+                const cards = Array.from(document.querySelectorAll('.timeline .content, #pinned-grid .content'));
+                cards.forEach(card => {
+                    if (card.dataset.cardClickBound === '1') return;
+                    card.dataset.cardClickBound = '1';
+                    card.addEventListener('click', (event) => {
+                        if (event.defaultPrevented) return;
+                        const target = event.target;
+                        if (target && target.closest('a, button, input, select, textarea, label')) return;
+                        const link = card.querySelector('a[href]');
+                        if (link) link.click();
+                    });
+                });
             }
 
             function insertYearHeaders() {
@@ -1404,6 +1588,7 @@
                     timeBtn.setAttribute('aria-pressed', String(!isGrid));
                 }
                 localStorage.setItem('view', view);
+                updateDescriptionClamps();
             }
 
             // Pinned management
@@ -1489,7 +1674,9 @@
             sortProjects('created');
             insertYearHeaders();
             applyFilters();
+            updateMetaRows();
             renderPinButtons();
+            attachCardClickHandlers();
             updateDescriptionClamps();
 
             const gridBtnInit = document.getElementById('grid-view-btn');
@@ -1551,6 +1738,7 @@
                             c.dataset.stars = c.dataset.stars || '0';
                         }
                     });
+                    updateMetaRows();
 
                     // Existing repo names from links already on the page
                     const existing = new Set(Array.from(document.querySelectorAll('.timeline a[href*="github.com/strangeloopcanon/"]'))
@@ -1638,6 +1826,8 @@
 
                     // After insertion: sort per selection and re-apply filters
                     const sortMode = (document.getElementById('sort')?.value || 'created');
+                    updateMetaRows();
+                    attachCardClickHandlers();
                     sortProjects(sortMode);
                     insertYearHeaders();
                     renderPinButtons();
